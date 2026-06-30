@@ -17,6 +17,7 @@ app.add_middleware(
     allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["Retry-After"],
 )
 
 # in-memory state
@@ -46,7 +47,7 @@ async def rate_limit_middleware(request: Request, call_next):
                     headers={
                         "Retry-After": str(retry_after),
                         "Access-Control-Allow-Origin": origin,
-                        "Access-Control-Allow-Credentials": "true",
+                        "Access-Control-Expose-Headers": "Retry-After",
                     },
                 )
             bucket.append(now)

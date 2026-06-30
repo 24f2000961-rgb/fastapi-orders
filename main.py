@@ -39,10 +39,15 @@ async def rate_limit_middleware(request: Request, call_next):
                 bucket.popleft()
             if len(bucket) >= RATE_LIMIT:
                 retry_after = max(1, int(WINDOW_SECONDS - (now - bucket[0])))
+                origin = request.headers.get("origin", "*")
                 return JSONResponse(
                     status_code=429,
                     content={"error": "rate limit exceeded"},
-                    headers={"Retry-After": str(retry_after)},
+                    headers={
+                        "Retry-After": str(retry_after),
+                        "Access-Control-Allow-Origin": origin,
+                        "Access-Control-Allow-Credentials": "true",
+                    },
                 )
             bucket.append(now)
     response = await call_next(request)
